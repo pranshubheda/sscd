@@ -12,16 +12,54 @@ export default class Login extends Component {
     }
 
     loginHandler(username, password) {
-        var loginCredentials = {
-            'username': username,
-            'password': password,
-        }
+        console.log(username, password)
+        var loginCredentials = JSON.stringify({username:username,password:password});
+        console.log(loginCredentials);
         //make api call and retrieve user_id
+        fetch('https://279a0e1f.ngrok.io/api/login', {
+            method: 'POST',
+            headers: {  
+                'Content-Type': 'application/json',
+            },
+            body: loginCredentials,
+        })
+        .then((response) => {
+            if(response.status == 200) {
+                this.handleLoginSuccess(response);
+            }
+            else {
+                this.handleLoginFailure(response);
+            }
+        });
 
-        //store the user_id to async storage
-        this._setUserIdOfLoggedInUser()
-        //redirect to the Tracking page
-        this.props.navigation.dispatch(navigateAction);
+        // .then((responseJson) => {
+        //     // console.log(response)
+        //     console.log(responseJson)
+        //     console.log(responseJson.error_msg)
+        //     console.log(responseJson._id)
+
+        //     if(response.status == 200) {
+        //         this._setUserIdOfLoggedInUser(responseJson._id);
+        //         this.props.navigation.dispatch(navigateAction);
+        //     }
+        //     else {
+        //         alert(responseJson.error_msg);
+        //     }
+        // })
+
+    }
+
+    handleLoginSuccess(response) {
+        response.json().then((responseJson) => {
+            this._setUserIdOfLoggedInUser(responseJson._id);
+            this.props.navigation.dispatch(navigateAction);
+        });
+    }
+    
+    handleLoginFailure(response) {
+        response.json().then((responseJson) => {
+            alert(responseJson.error_msg);
+        });
     }
 
     componentDidMount() {
@@ -30,17 +68,17 @@ export default class Login extends Component {
 
     _checkIfLoggedIn = async () => {
         var value = await AsyncStorage.getItem('user_id');
+        console.log('async storage value:-',value);
         if (value !== null) {
-            
             this.props.navigation.dispatch(navigateAction);
         }
     }
 
-    _setUserIdOfLoggedInUser = async () => {
+    _setUserIdOfLoggedInUser = async (user_id) => {
         try {
-            await AsyncStorage.setItem('user_id', '9999');
+            await AsyncStorage.setItem('user_id', user_id);
         } catch (error) {
-        console.error('some error occure while stored user_id: ', error);
+            console.error('some error occure while stored user_id: ', error);
         }
     }
 
