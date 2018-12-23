@@ -1,41 +1,126 @@
 import React,{Component} from 'react';
-import {Platform, StyleSheet, Text, View, KeyboardAvoidingView, Image, AsyncStorage} from 'react-native';
+import {Platform, StyleSheet, Text, View, KeyboardAvoidingView, Image, AsyncStorage, TouchableOpacity} from 'react-native';
 import { NavigationActions } from 'react-navigation';
+import BackgroundTimer from 'react-native-background-timer';
+
+const baseURL = 'https://06f8c931.ngrok.io/';
 
 export default class Login extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            user_id: '',
+            latitude: null,
+            longitude: null,
+            error: null,
+            user_id:null,
         }
+        this.startTracking = this.startTracking.bind(this);
+        this.stopTracking = this.stopTracking.bind(this);
     }
 
     componentDidMount() {
-        var user_id = this._getUserId();
-        this.setState({
-            'user_id': user_id,
-        });
-
-        console.log('user_id set in component state',this.state.user_id);
+        this._getUserId();
     }
 
+    componentWillUnmount() {
+        this.stopTracking();
+    }
+
+    startTracking() {   
+        this.runBackgroundTask();
+    }
+
+    stopTracking() {
+        alert('Tracking has been Stopped '+this.watch_id);
+        navigator.geolocation.stopObserving();
+        this.stopBackgroundTask();
+    }
+    
     _getUserId = async () => {
         var value = await AsyncStorage.getItem('user_id');
         if (value == null) {
-            alert('please login again')
+            alert('please login again');
             this.props.navigation.dispatch(navigateActionToLogin);
         }
         else {
             alert(value);
+            console.log(value)
+            this.setState({
+                user_id: value,
+            });
+            console.log(this.state.user_id);
         }
-        return value;
     }
 
+    getGeoLocationAndUpdate() {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                this.setState({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                error: null,
+                });
+                this.updateLocation(this.state.latitude, this.state.longitude);
+            },
+            (error) => this.setState({ error: error.message }),
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+        );
+    }
+
+    updateLocation(latitude, longitude) {
+        console.log('updating location to:- '+latitude+'/'+longitude);
+        var location = {
+            user_id: this.state.user_id,
+            latitude: latitude,
+            longitude: longitude,
+        }
+
+        fetch(baseURL+'api/location/update', {
+            method: 'POST',
+            headers: {  
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(location),
+        })
+        .then((response) => {
+            if(response.status == 200) {
+                // this.handleLoginSuccess(response);
+                console.log('location updated successfully')
+            }
+            else {
+                console.log('error occurred while updating location')
+            }
+        });
+    }
+    
+    backgroundTask = () => {
+        this.getGeoLocationAndUpdate();
+    }
+    
+    stopBackgroundTask = () => {
+        console.log('stopping background task timer');
+        BackgroundTimer.stopBackgroundTimer(); 
+    }
+    
+    runBackgroundTask = () => {
+        BackgroundTimer.runBackgroundTimer(() => {
+                this.backgroundTask();
+            }, 
+            10000);        
+    }
+    
     render() {
         return (
-            <View>
-                <Text>This is tracking scene you were already logged in</Text>
+            <View behavior="padding" style={styles.container}>
+                <TouchableOpacity style={styles.buttonContainer} 
+                                    onPress={this.startTracking}>
+                            <Text  style={styles.buttonText}>START TRACKING</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonContainer} 
+                                    onPress={this.stopTracking}>
+                            <Text  style={styles.buttonText}>STOP TRACKING</Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -43,4 +128,31 @@ export default class Login extends Component {
 
 const navigateActionToLogin = NavigationActions.navigate({
     routeName: 'Home',
-  });
+});
+
+// define your styles
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#2c3e50',
+        padding: 20,
+        justifyContent:'center'
+    },
+    input:{
+        height: 40,
+        backgroundColor: 'rgba(225,225,225,0.2)',
+        marginBottom: 10,
+        padding: 10,
+        color: '#fff'
+    },
+    buttonContainer:{
+        backgroundColor: '#2980b6',
+        paddingVertical: 15,
+        margin: 50
+    },
+    buttonText:{
+        color: '#fff',
+        textAlign: 'center',
+        fontWeight: '700'
+    }
+});

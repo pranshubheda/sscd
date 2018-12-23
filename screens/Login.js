@@ -3,6 +3,8 @@ import {Platform, StyleSheet, Text, View, KeyboardAvoidingView, Image, AsyncStor
 import LoginForm from '../components/LoginForm.js';
 import { NavigationActions } from 'react-navigation';
 
+const baseURL = 'https://06f8c931.ngrok.io/';
+
 export default class Login extends Component {
 
     constructor(props) {
@@ -16,7 +18,7 @@ export default class Login extends Component {
         var loginCredentials = JSON.stringify({username:username,password:password});
         console.log(loginCredentials);
         //make api call and retrieve user_id
-        fetch('https://279a0e1f.ngrok.io/api/login', {
+        fetch(baseURL+'api/login', {
             method: 'POST',
             headers: {  
                 'Content-Type': 'application/json',
@@ -31,22 +33,6 @@ export default class Login extends Component {
                 this.handleLoginFailure(response);
             }
         });
-
-        // .then((responseJson) => {
-        //     // console.log(response)
-        //     console.log(responseJson)
-        //     console.log(responseJson.error_msg)
-        //     console.log(responseJson._id)
-
-        //     if(response.status == 200) {
-        //         this._setUserIdOfLoggedInUser(responseJson._id);
-        //         this.props.navigation.dispatch(navigateAction);
-        //     }
-        //     else {
-        //         alert(responseJson.error_msg);
-        //     }
-        // })
-
     }
 
     handleLoginSuccess(response) {
@@ -78,7 +64,7 @@ export default class Login extends Component {
         try {
             await AsyncStorage.setItem('user_id', user_id);
         } catch (error) {
-            console.error('some error occure while stored user_id: ', error);
+            console.error('some error occured while stored user_id: ', error);
         }
     }
 
