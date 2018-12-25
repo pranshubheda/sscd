@@ -3,7 +3,7 @@ import {Platform, StyleSheet, Text, View, KeyboardAvoidingView, Image, AsyncStor
 import LoginForm from '../components/LoginForm.js';
 import { NavigationActions } from 'react-navigation';
 
-const baseURL = 'http://6b3f8e87.ngrok.io/';
+const baseURL = 'http://52.14.62.158:5656/';
 
 export default class Login extends Component {
 
@@ -32,6 +32,8 @@ export default class Login extends Component {
             else {
                 this.handleLoginFailure(response);
             }
+        }).catch((err)=> {
+            alert(err);
         });
     }
 
@@ -74,8 +76,10 @@ export default class Login extends Component {
 
                 <View style={styles.loginContainer}>
                     {/* <Image resizeMode="contain" style={styles.logo} source={require('../../components/images/logo-dark-bg.png')} /> */}
-                  
-                   </View>
+                    <Text style={styles.logo}>
+                        RSSB-SSCD
+                    </Text>
+                </View>
                <View style={styles.formContainer}>
                    <LoginForm loginHandler={this.loginHandler} />
                </View>
@@ -100,8 +104,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     logo: {
-        position: 'absolute',
-        width: 300,
-        height: 100
+        color: 'white',
+        fontSize: 30,
     }
 });
