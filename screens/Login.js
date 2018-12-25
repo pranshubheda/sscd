@@ -3,7 +3,7 @@ import {Platform, StyleSheet, Text, View, KeyboardAvoidingView, Image, AsyncStor
 import LoginForm from '../components/LoginForm.js';
 import { NavigationActions } from 'react-navigation';
 
-const baseURL = 'https://06f8c931.ngrok.io/';
+const baseURL = 'http://6b3f8e87.ngrok.io/';
 
 export default class Login extends Component {
 

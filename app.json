@@ -1,4 +1,14 @@
 {
   "name": "sscd",
-  "displayName": "sscd"
+  "displayName": "sscd",
+  "expo": {
+    "name": "sscd",
+    "icon": "",
+    "version": "1.0.0",
+    "slug": "sscd-slug",
+    "sdkVersion": "27.0.0",
+    "android": {
+      "package": "com.mobile.sscd"
+    }
+  }
 }
