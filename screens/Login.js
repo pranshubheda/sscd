@@ -75,8 +75,9 @@ export default class Login extends Component {
             <KeyboardAvoidingView behavior="padding" style={styles.container}>
 
                 <View style={styles.loginContainer}>
-                    {/* <Image resizeMode="contain" style={styles.logo} source={require('../../components/images/logo-dark-bg.png')} /> */}
-                    <Text style={styles.logo}>
+                    {/* <Image resizeMode="contain" style={styles.logo} 
+                        source={require('../components/images/logo-dark-bg.png')} /> */}
+                    <Text style={styles.mainText}>
                         RSSB-SSCD
                     </Text>
                 </View>
@@ -103,8 +104,13 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center'
     },
+    mainText: {
+        color: 'silver',
+        fontSize: 25,
+    },
     logo: {
-        color: 'white',
-        fontSize: 30,
+        position: 'absolute',
+        width: 300,
+        height: 100
     }
 });

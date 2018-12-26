@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView,
   Image,
   AsyncStorage,
-  TouchableOpacity
+  TouchableOpacity,
+  BackHandler,
 } from "react-native";
 import { NavigationActions } from "react-navigation";
 import BackgroundTimer from "react-native-background-timer";
@@ -29,6 +30,9 @@ export default class Login extends Component {
 
   componentDidMount() {
     this._getUserId();
+    BackHandler.addEventListener('hardwareBackPress', function() {
+        return true;
+    });
   }
 
   componentWillUnmount() {
@@ -114,21 +118,48 @@ export default class Login extends Component {
     }, 60000);
   };
 
+  _setUserIdAsNull = async () => {
+      console.log('setting user_id as null');
+    try {
+        await AsyncStorage.setItem('user_id', null);        
+    } catch (error) {
+        console.error('Error occured while setting user_id as null during logout. error: '+error);
+    }
+  }
+
+  logout = () => {
+    console.log('logout called');
+    this._setUserIdAsNull();    
+    this.props.navigation.dispatch(navigateActionToLogin);
+    this.stopTracking();
+
+    //console.log('after logout'+val);
+  }
+
   render() {
     return (
       <View behavior="padding" style={styles.container}>
         <TouchableOpacity
-          style={styles.buttonContainer}
+          style={[styles.buttonContainer]}
           onPress={this.startTracking}
         >
           <Text style={styles.buttonText}>START TRACKING</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.buttonContainer}
+          style={[styles.buttonContainer]}
           onPress={this.stopTracking}
         >
           <Text style={styles.buttonText}>STOP TRACKING</Text>
         </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.buttonContainer, styles.logoutButton]}
+          onPress={this.logout}
+        >
+          <Text style={styles.buttonText}>LOGOUT</Text>
+        </TouchableOpacity>
+        
+        
       </View>
     );
   }
@@ -162,5 +193,8 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontWeight: "700"
+  },
+  logoutButton:{
+    backgroundColor: 'crimson',
   }
 });
